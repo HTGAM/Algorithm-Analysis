@@ -413,6 +413,141 @@ async function runShellSort(viz) {
     viz.markSorted();
 }
 
+// 8. Pattern-defeating Quicksort (PDQSort)
+// Simplified version with median-of-three pivot selection
+async function runPDQSort(viz) {
+    viz.startTimer();
+    await pdqSortRecursive(viz, 0, viz.array.length - 1, Math.floor(Math.log2(viz.array.length)) * 2);
+    viz.stopTimer();
+    viz.markSorted();
+}
+
+async function pdqSortRecursive(viz, low, high, depthLimit) {
+    while (low < high) {
+        // For small arrays, use insertion sort
+        if (high - low < 10) {
+            await insertionSortRange(viz, low, high);
+            return;
+        }
+
+        // If recursion depth limit reached, use heapsort
+        if (depthLimit === 0) {
+            await heapSortRange(viz, low, high);
+            return;
+        }
+
+        // Partition with median-of-three pivot
+        let pi = await partitionMedianOfThree(viz, low, high);
+
+        // Recurse on smaller partition first (tail call optimization)
+        if (pi - low < high - pi) {
+            await pdqSortRecursive(viz, low, pi - 1, depthLimit - 1);
+            low = pi + 1;
+        } else {
+            await pdqSortRecursive(viz, pi + 1, high, depthLimit - 1);
+            high = pi - 1;
+        }
+        depthLimit--;
+    }
+}
+
+async function partitionMedianOfThree(viz, low, high) {
+    // Choose median of three as pivot
+    let mid = Math.floor((low + high) / 2);
+
+    // Highlight the three candidates
+    viz.bars[low].classList.add('comparing');
+    viz.bars[mid].classList.add('comparing');
+    viz.bars[high].classList.add('comparing');
+    await sleep(config.delay);
+
+    // Sort low, mid, high
+    if (viz.array[low] > viz.array[mid]) await viz.swap(low, mid);
+    if (viz.array[low] > viz.array[high]) await viz.swap(low, high);
+    if (viz.array[mid] > viz.array[high]) await viz.swap(mid, high);
+
+    // Place median at high-1 position
+    await viz.swap(mid, high - 1);
+
+    viz.bars[low].classList.remove('comparing');
+    viz.bars[mid].classList.remove('comparing');
+    viz.bars[high].classList.remove('comparing');
+
+    let pivot = viz.array[high - 1];
+    viz.bars[high - 1].classList.add('pivot');
+
+    let i = low;
+    let j = high - 1;
+
+    while (true) {
+        while (viz.array[++i] < pivot) {
+            viz.bars[i].classList.add('comparing');
+            await sleep(config.delay / 2);
+            viz.bars[i].classList.remove('comparing');
+        }
+        while (viz.array[--j] > pivot) {
+            viz.bars[j].classList.add('comparing');
+            await sleep(config.delay / 2);
+            viz.bars[j].classList.remove('comparing');
+        }
+
+        if (i >= j) break;
+        await viz.swap(i, j);
+    }
+
+    await viz.swap(i, high - 1);
+    viz.bars[high - 1].classList.remove('pivot');
+
+    return i;
+}
+
+async function insertionSortRange(viz, low, high) {
+    for (let i = low + 1; i <= high; i++) {
+        let j = i;
+        viz.bars[i].classList.add('pivot');
+        await sleep(config.delay);
+
+        while (j > low && viz.array[j - 1] > viz.array[j]) {
+            await viz.swap(j, j - 1);
+            j--;
+        }
+        viz.bars[j].classList.remove('pivot');
+    }
+}
+
+async function heapSortRange(viz, low, high) {
+    let n = high - low + 1;
+
+    // Build heap
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        await heapifyRange(viz, low, n, i);
+    }
+
+    // Extract elements
+    for (let i = n - 1; i > 0; i--) {
+        await viz.swap(low, low + i);
+        await heapifyRange(viz, low, i, 0);
+    }
+}
+
+async function heapifyRange(viz, offset, n, i) {
+    let largest = i;
+    let l = 2 * i + 1;
+    let r = 2 * i + 2;
+
+    if (l < n && viz.array[offset + l] > viz.array[offset + largest]) {
+        largest = l;
+    }
+    if (r < n && viz.array[offset + r] > viz.array[offset + largest]) {
+        largest = r;
+    }
+
+    if (largest !== i) {
+        await viz.swap(offset + i, offset + largest);
+        await heapifyRange(viz, offset, n, largest);
+    }
+}
+
 // --- Main Controller ---
 const vizQuick = new Visualizer('quick');
 const vizMerge = new Visualizer('merge');
@@ -421,8 +556,9 @@ const vizBubble = new Visualizer('bubble');
 const vizSelection = new Visualizer('selection');
 const vizHeap = new Visualizer('heap');
 const vizShell = new Visualizer('shell');
+const vizPDQ = new Visualizer('pdq');
 
-const visualizers = [vizQuick, vizMerge, vizInsertion, vizBubble, vizSelection, vizHeap, vizShell];
+const visualizers = [vizQuick, vizMerge, vizInsertion, vizBubble, vizSelection, vizHeap, vizShell, vizPDQ];
 
 function init() {
     config.size = parseInt(elements.sizeInput.value);
@@ -460,8 +596,9 @@ elements.startBtn.addEventListener('click', async () => {
     const p5 = runSelectionSort(vizSelection);
     const p6 = runHeapSort(vizHeap);
     const p7 = runShellSort(vizShell);
+    const p8 = runPDQSort(vizPDQ);
 
-    await Promise.all([p1, p2, p3, p4, p5, p6, p7]);
+    await Promise.all([p1, p2, p3, p4, p5, p6, p7, p8]);
 
     config.isSorting = false;
     elements.generateBtn.disabled = false;
