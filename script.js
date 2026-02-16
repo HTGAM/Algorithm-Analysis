@@ -261,11 +261,168 @@ async function runInsertionSort(viz) {
     viz.markSorted();
 }
 
+// 4. Bubble Sort
+async function runBubbleSort(viz) {
+    viz.startTimer();
+    let len = viz.array.length;
+    for (let i = 0; i < len; i++) {
+        let swapped = false;
+        for (let j = 0; j < len - i - 1; j++) {
+            viz.bars[j].classList.add('comparing');
+            viz.bars[j + 1].classList.add('comparing');
+            await sleep(config.delay);
+
+            if (viz.array[j] > viz.array[j + 1]) {
+                await viz.swap(j, j + 1);
+                swapped = true;
+            }
+            viz.bars[j].classList.remove('comparing');
+            viz.bars[j + 1].classList.remove('comparing');
+        }
+        viz.bars[len - i - 1].classList.add('sorted');
+        // Optimization: if no elements were swapped, break
+        if (!swapped) break;
+    }
+    // Ensure all are marked sorted (if broke early)
+    viz.markSorted();
+    viz.stopTimer();
+}
+
+// 5. Selection Sort
+async function runSelectionSort(viz) {
+    viz.startTimer();
+    let len = viz.array.length;
+    for (let i = 0; i < len; i++) {
+        let minIdx = i;
+        viz.bars[i].classList.add('pivot'); // Pivot is current position
+
+        for (let j = i + 1; j < len; j++) {
+            viz.bars[j].classList.add('comparing');
+            await sleep(config.delay);
+            viz.bars[j].classList.remove('comparing');
+
+            if (viz.array[j] < viz.array[minIdx]) {
+                if (minIdx !== i) {
+                    viz.bars[minIdx].classList.remove('swapping'); // remove highlight from old min
+                }
+                minIdx = j;
+                viz.bars[minIdx].classList.add('swapping'); // highlight new min
+            }
+        }
+
+        if (minIdx !== i) {
+            await viz.swap(i, minIdx);
+        }
+
+        viz.bars[minIdx].classList.remove('swapping');
+        viz.bars[i].classList.remove('pivot');
+        viz.bars[i].classList.add('sorted');
+    }
+    viz.markSorted();
+    viz.stopTimer();
+}
+
+// 6. Heap Sort
+async function runHeapSort(viz) {
+    viz.startTimer();
+    let n = viz.array.length;
+
+    // Build max heap
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        await heapify(viz, n, i);
+    }
+
+    // Heap sort
+    for (let i = n - 1; i > 0; i--) {
+        await viz.swap(0, i);
+        viz.bars[i].classList.add('sorted');
+        await heapify(viz, i, 0);
+    }
+    viz.bars[0].classList.add('sorted');
+
+    viz.stopTimer();
+    // viz.markSorted(); // Already marked in loop
+}
+
+async function heapify(viz, n, i) {
+    let largest = i;
+    let l = 2 * i + 1;
+    let r = 2 * i + 2;
+
+    if (l < n) {
+        viz.bars[l].classList.add('comparing');
+        viz.bars[largest].classList.add('comparing');
+        await sleep(config.delay);
+        viz.bars[l].classList.remove('comparing');
+        viz.bars[largest].classList.remove('comparing');
+
+        if (viz.array[l] > viz.array[largest]) {
+            largest = l;
+        }
+    }
+
+    if (r < n) {
+        viz.bars[r].classList.add('comparing');
+        viz.bars[largest].classList.add('comparing');
+        await sleep(config.delay);
+        viz.bars[r].classList.remove('comparing');
+        viz.bars[largest].classList.remove('comparing');
+
+        if (viz.array[r] > viz.array[largest]) {
+            largest = r;
+        }
+    }
+
+    if (largest !== i) {
+        await viz.swap(i, largest);
+        await heapify(viz, n, largest);
+    }
+}
+
+// 7. Shell Sort
+async function runShellSort(viz) {
+    viz.startTimer();
+    let n = viz.array.length;
+
+    // Start with a big gap, then reduce the gap
+    for (let gap = Math.floor(n / 2); gap > 0; gap = Math.floor(gap / 2)) {
+
+        for (let i = gap; i < n; i += 1) {
+            let temp = viz.array[i];
+            let j;
+
+            // We'll mimic insertion sort but with gap
+            // Using swap to visualize moving back
+            for (j = i; j >= gap; j -= gap) {
+                viz.bars[j].classList.add('comparing');
+                viz.bars[j - gap].classList.add('comparing');
+                await sleep(config.delay);
+                viz.bars[j].classList.remove('comparing');
+                viz.bars[j - gap].classList.remove('comparing');
+
+                if (viz.array[j - gap] > viz.array[j]) {
+                    await viz.swap(j, j - gap);
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+    viz.stopTimer();
+    viz.markSorted();
+}
+
 // --- Main Controller ---
 const vizQuick = new Visualizer('quick');
 const vizMerge = new Visualizer('merge');
 const vizInsertion = new Visualizer('insertion');
-const visualizers = [vizQuick, vizMerge, vizInsertion];
+const vizBubble = new Visualizer('bubble');
+const vizSelection = new Visualizer('selection');
+const vizHeap = new Visualizer('heap');
+const vizShell = new Visualizer('shell');
+
+const visualizers = [vizQuick, vizMerge, vizInsertion, vizBubble, vizSelection, vizHeap, vizShell];
 
 function init() {
     config.size = parseInt(elements.sizeInput.value);
@@ -299,8 +456,12 @@ elements.startBtn.addEventListener('click', async () => {
     const p1 = runQuickSort(vizQuick);
     const p2 = runMergeSort(vizMerge);
     const p3 = runInsertionSort(vizInsertion);
+    const p4 = runBubbleSort(vizBubble);
+    const p5 = runSelectionSort(vizSelection);
+    const p6 = runHeapSort(vizHeap);
+    const p7 = runShellSort(vizShell);
 
-    await Promise.all([p1, p2, p3]);
+    await Promise.all([p1, p2, p3, p4, p5, p6, p7]);
 
     config.isSorting = false;
     elements.generateBtn.disabled = false;
