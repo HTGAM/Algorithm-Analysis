@@ -109,10 +109,12 @@ button:disabled {
 
 .card-header h2 small {
     display: block;
-    font-size: 0.75rem;
-    color: #888;
+    font-size: 0.7rem;
+    color: #999;
     font-weight: 400;
-    margin-top: 2px;
+    margin-top: 5px;
+    /* Increased from 2px to move it further down */
+    font-style: italic;
 }
 
 .complexity {
