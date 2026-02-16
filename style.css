@@ -99,12 +99,20 @@ button:disabled {
 
 .card-header h2 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.2rem;
+    /* Back to slightly larger for the main acronym */
     color: #333;
     flex: 1;
     padding-right: 10px;
-    line-height: 1.3;
-    word-break: keep-all;
+    line-height: 1.2;
+}
+
+.card-header h2 small {
+    display: block;
+    font-size: 0.75rem;
+    color: #888;
+    font-weight: 400;
+    margin-top: 2px;
 }
 
 .complexity {
