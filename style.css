@@ -99,20 +99,21 @@ button:disabled {
 
 .card-header h2 {
     margin: 0;
-    font-size: 1.1rem;
-    /* Slightly smaller to fit better */
+    font-size: 1rem;
     color: #333;
     flex: 1;
     padding-right: 10px;
-    line-height: 1.2;
+    line-height: 1.3;
+    word-break: keep-all;
 }
 
 .complexity {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #666;
+    flex-shrink: 0;
 }
 
 .complexity span {
