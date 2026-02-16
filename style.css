@@ -87,19 +87,24 @@ button:disabled {
     flex-direction: column;
 }
 
-.algo-card h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #333;
-}
-
 .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    /* Changed from center to accommodate possible multi-line or long titles */
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
     margin-bottom: 10px;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    /* Slightly smaller to fit better */
+    color: #333;
+    flex: 1;
+    padding-right: 10px;
+    line-height: 1.2;
 }
 
 .complexity {
