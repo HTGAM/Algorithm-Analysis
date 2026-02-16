@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithm Analysis</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>알고리즘 분석 (Algorithm Analysis)</h1>
+        <div class="controls">
+            <div class="control-group">
+                <label>데이터 생성:</label>
+                <select id="data-type">
+                    <option value="random">무작위 (Random)</option>
+                    <option value="reversed">역순 (Reversed)</option>
+                    <option value="nearly-sorted">거의 정렬됨 (Nearly Sorted)</option>
+                </select>
+                <button id="generate">새 데이터 생성</button>
+            </div>
+            <div class="control-group">
+                <label>크기:</label>
+                <input type="range" id="size" min="10" max="100" value="30">
+            </div>
+            <div class="control-group">
+                <label>속도:</label>
+                <input type="range" id="speed" min="1" max="100" value="50">
+            </div>
+            <button id="start-all" class="primary-btn">모두 시작</button>
+        </div>
+    </header>
+    <main class="grid-container">
+        <!-- Quick Sort -->
+        <div class="algo-card" id="card-quick">
+            <div class="card-header">
+                <h2>Quick Sort</h2>
+                <div class="complexity">
+                    <span title="최선/평균">시간: O(N log N)</span>
+                    <span title="공간 복잡도">공간: O(log N)</span>
+                </div>
+            </div>
+            <div class="viz-container" id="container-quick"></div>
+            <div class="stats">
+                <span>시간: <span id="time-quick">0</span>ms</span>
+                <span>교환: <span id="swap-quick">0</span>회</span>
+            </div>
+        </div>
+
+        <!-- Merge Sort -->
+        <div class="algo-card" id="card-merge">
+            <div class="card-header">
+                <h2>Merge Sort</h2>
+                <div class="complexity">
+                    <span title="최선/평균/최악">시간: O(N log N)</span>
+                    <span title="공간 복잡도">공간: O(N)</span>
+                </div>
+            </div>
+            <div class="viz-container" id="container-merge"></div>
+            <div class="stats">
+                <span>시간: <span id="time-merge">0</span>ms</span>
+                <span>교환: <span id="swap-merge">0</span>회</span>
+            </div>
+        </div>
+
+        <!-- Insertion Sort -->
+        <div class="algo-card" id="card-insertion">
+            <div class="card-header">
+                <h2>Insertion Sort</h2>
+                <div class="complexity">
+                    <span title="최악">시간: O(N²)</span>
+                    <span title="공간 복잡도">공간: O(1)</span>
+                </div>
+            </div>
+            <div class="viz-container" id="container-insertion"></div>
+            <div class="stats">
+                <span>시간: <span id="time-insertion">0</span>ms</span>
+                <span>교환: <span id="swap-insertion">0</span>회</span>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+
+</html>
